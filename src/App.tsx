@@ -80,7 +80,7 @@ export default function App() {
     const scored = getRecommendedPlaces(preferences, allPlaces);
     setRecommendedPlaces(scored);
 
-    // Auto-select top 3 places that fit within budget to give user a great starting plan
+    // Auto-select top places that fit within budget to give user a great starting plan
     const initialSelection: Place[] = [];
     let runningCost = 0;
     for (const p of scored) {
@@ -89,7 +89,7 @@ export default function App() {
         runningCost += p.cost;
       }
     }
-    setSelectedPlaces(initialSelection.length > 0 ? initialSelection : scored.slice(0, 2));
+    setSelectedPlaces(initialSelection.length > 0 ? initialSelection : scored.slice(0, 3));
 
     setPlanSubView('recommendations');
     setCurrentTab('plan');
@@ -227,140 +227,158 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex justify-center">
-      {/* Mobile viewport frame (max 440px) */}
-      <div className="w-full max-w-[440px] min-h-screen flex flex-col bg-[#F8FAFC] relative">
-        {/* Sticky Top Bar */}
-        <TopBar
-          currentUser={currentUser}
-          onOpenAuth={() => setIsAuthModalOpen(true)}
-          onNavigateProfile={() => setCurrentTab('profile')}
-          onHomeClick={() => setCurrentTab('explore')}
-        />
-
-        {/* Main Content Area */}
-        <main className="flex-1 px-3 pt-3">
-          {/* TAB 1: Explore / Home */}
-          {currentTab === 'explore' && (
-            <HomeScreen
-              onStartPlanning={() => {
-                setCurrentTab('plan');
-                setPlanSubView('preferences');
-              }}
-              onSelectBudgetTier={handleSelectBudgetTier}
-              onSelectPlace={(p) => setSelectedPlaceForModal(p)}
-              onSurpriseMe={handleSurpriseMe}
-            />
-          )}
-
-          {/* TAB 2: Plan Trip */}
-          {currentTab === 'plan' && (
-            <>
-              {planSubView === 'preferences' && (
-                <PlanPreferencesScreen
-                  preferences={preferences}
-                  onChangePreferences={setPreferences}
-                  onGenerate={handleGenerateRecommendations}
-                />
-              )}
-
-              {planSubView === 'recommendations' && (
-                <RecommendationsScreen
-                  preferences={preferences}
-                  recommendations={
-                    recommendedPlaces.length > 0
-                      ? recommendedPlaces
-                      : getRecommendedPlaces(preferences, allPlaces)
-                  }
-                  selectedPlaces={selectedPlaces}
-                  onTogglePlace={handleTogglePlace}
-                  onSelectPlaceDetails={(p) => setSelectedPlaceForModal(p)}
-                  onViewItinerary={handleBuildItinerary}
-                  onBack={() => setPlanSubView('preferences')}
-                />
-              )}
-
-              {planSubView === 'itinerary' && (
-                <ItineraryScreen
-                  stops={generatedItinerary}
-                  preferences={preferences}
-                  onBack={() => setPlanSubView('recommendations')}
-                  onSaveTrip={handleSaveTrip}
-                  isSaved={isCurrentTripSaved}
-                  onSelectPlaceDetails={(p) => setSelectedPlaceForModal(p)}
-                  onReorderOrOptimize={handleOptimizeRoute}
-                />
-              )}
-            </>
-          )}
-
-          {/* TAB 3: Saved Trips */}
-          {currentTab === 'saved' && (
-            <SavedTripsScreen
-              trips={savedTrips}
-              onSelectTrip={handleOpenSavedTrip}
-              onDeleteTrip={handleDeleteSavedTrip}
-              onPlanNew={() => {
-                setCurrentTab('plan');
-                setPlanSubView('preferences');
-              }}
-            />
-          )}
-
-          {/* TAB 4: Karachi Local Guide */}
-          {currentTab === 'guide' && <KarachiGuideScreen />}
-
-          {/* TAB 5: Profile & Backend */}
-          {currentTab === 'profile' && (
-            <ProfileScreen
-              currentUser={currentUser}
-              savedTripsCount={savedTrips.length}
-              onOpenAuth={() => setIsAuthModalOpen(true)}
-              onSignOut={async () => {
-                await dbService.signOut();
-                setCurrentUser(null);
-              }}
-              onNavigateSaved={() => setCurrentTab('saved')}
-            />
-          )}
-        </main>
-
-        {/* Place Detail Modal */}
-        <PlaceDetailModal
-          place={selectedPlaceForModal}
-          isSelected={Boolean(
-            selectedPlaceForModal &&
-              selectedPlaces.some((p) => p.id === selectedPlaceForModal.id)
-          )}
-          onClose={() => setSelectedPlaceForModal(null)}
-          onTogglePlan={(p) => handleTogglePlace(p)}
-          onSelectOtherPlace={(p) => setSelectedPlaceForModal(p)}
-        />
-
-        {/* Auth Modal */}
-        <AuthModal
-          isOpen={isAuthModalOpen}
-          onClose={() => setIsAuthModalOpen(false)}
-          onSuccess={(user) => {
-            setCurrentUser(user);
-            dbService.getSavedTrips(user.id).then(setSavedTrips);
-          }}
-        />
-
-        {/* Fixed Bottom Tab Bar */}
-        <BottomNav
-          currentTab={currentTab}
-          onChangeTab={(tab) => {
-            setCurrentTab(tab);
-            if (tab === 'plan' && generatedItinerary.length > 0) {
+    <div className="min-h-screen flex flex-col bg-[#F8FAFC] w-full text-[#0F172A]">
+      {/* Responsive Top Navigation Bar */}
+      <TopBar
+        currentUser={currentUser}
+        currentTab={currentTab}
+        onChangeTab={(tab) => {
+          setCurrentTab(tab);
+          if (tab === 'plan') {
+            if (generatedItinerary.length > 0) {
               setPlanSubView('itinerary');
-            } else if (tab === 'plan' && selectedPlaces.length > 0) {
+            } else if (selectedPlaces.length > 0) {
               setPlanSubView('recommendations');
+            } else {
+              setPlanSubView('preferences');
             }
-          }}
-          selectedPlacesCount={selectedPlaces.length}
-        />
-      </div>
+          }
+        }}
+        onOpenAuth={() => setIsAuthModalOpen(true)}
+        onNavigateProfile={() => setCurrentTab('profile')}
+        onStartPlanning={() => {
+          setCurrentTab('plan');
+          setPlanSubView('preferences');
+        }}
+        selectedPlacesCount={selectedPlaces.length}
+      />
+
+      {/* Main Content Area (Max 7XL container that adapts gracefully from phone to 4K monitor) */}
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* TAB 1: Explore / Home */}
+        {currentTab === 'explore' && (
+          <HomeScreen
+            onStartPlanning={() => {
+              setCurrentTab('plan');
+              setPlanSubView('preferences');
+            }}
+            onSelectBudgetTier={handleSelectBudgetTier}
+            onSelectPlace={(p) => setSelectedPlaceForModal(p)}
+            onSurpriseMe={handleSurpriseMe}
+          />
+        )}
+
+        {/* TAB 2: Plan Trip */}
+        {currentTab === 'plan' && (
+          <>
+            {planSubView === 'preferences' && (
+              <PlanPreferencesScreen
+                preferences={preferences}
+                onChangePreferences={setPreferences}
+                onGenerate={handleGenerateRecommendations}
+              />
+            )}
+
+            {planSubView === 'recommendations' && (
+              <RecommendationsScreen
+                preferences={preferences}
+                recommendations={
+                  recommendedPlaces.length > 0
+                    ? recommendedPlaces
+                    : getRecommendedPlaces(preferences, allPlaces)
+                }
+                selectedPlaces={selectedPlaces}
+                onTogglePlace={handleTogglePlace}
+                onSelectPlaceDetails={(p) => setSelectedPlaceForModal(p)}
+                onViewItinerary={handleBuildItinerary}
+                onBack={() => setPlanSubView('preferences')}
+              />
+            )}
+
+            {planSubView === 'itinerary' && (
+              <ItineraryScreen
+                stops={generatedItinerary}
+                preferences={preferences}
+                onBack={() => setPlanSubView('recommendations')}
+                onSaveTrip={handleSaveTrip}
+                isSaved={isCurrentTripSaved}
+                onSelectPlaceDetails={(p) => setSelectedPlaceForModal(p)}
+                onReorderOrOptimize={handleOptimizeRoute}
+              />
+            )}
+          </>
+        )}
+
+        {/* TAB 3: Saved Trips */}
+        {currentTab === 'saved' && (
+          <SavedTripsScreen
+            trips={savedTrips}
+            onSelectTrip={handleOpenSavedTrip}
+            onDeleteTrip={handleDeleteSavedTrip}
+            onPlanNew={() => {
+              setCurrentTab('plan');
+              setPlanSubView('preferences');
+            }}
+          />
+        )}
+
+        {/* TAB 4: Karachi Local Guide */}
+        {currentTab === 'guide' && <KarachiGuideScreen />}
+
+        {/* TAB 5: Profile & Backend */}
+        {currentTab === 'profile' && (
+          <ProfileScreen
+            currentUser={currentUser}
+            savedTripsCount={savedTrips.length}
+            onOpenAuth={() => setIsAuthModalOpen(true)}
+            onSignOut={async () => {
+              await dbService.signOut();
+              setCurrentUser(null);
+            }}
+            onNavigateSaved={() => setCurrentTab('saved')}
+          />
+        )}
+      </main>
+
+      {/* Place Detail Modal (Responsive Dialog) */}
+      <PlaceDetailModal
+        place={selectedPlaceForModal}
+        isSelected={Boolean(
+          selectedPlaceForModal &&
+            selectedPlaces.some((p) => p.id === selectedPlaceForModal.id)
+        )}
+        onClose={() => setSelectedPlaceForModal(null)}
+        onTogglePlan={(p) => handleTogglePlace(p)}
+        onSelectOtherPlace={(p) => setSelectedPlaceForModal(p)}
+      />
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onSuccess={(user) => {
+          setCurrentUser(user);
+          dbService.getSavedTrips(user.id).then(setSavedTrips);
+        }}
+      />
+
+      {/* Fixed Bottom Tab Bar (Visible on Mobile Only, Hidden on Tablets and Desktops) */}
+      <BottomNav
+        currentTab={currentTab}
+        onChangeTab={(tab) => {
+          setCurrentTab(tab);
+          if (tab === 'plan') {
+            if (generatedItinerary.length > 0) {
+              setPlanSubView('itinerary');
+            } else if (selectedPlaces.length > 0) {
+              setPlanSubView('recommendations');
+            } else {
+              setPlanSubView('preferences');
+            }
+          }
+        }}
+        selectedPlacesCount={selectedPlaces.length}
+      />
     </div>
   );
 }
