@@ -1,0 +1,6 @@
+{
+  "name": "Safar.ai — Karachi Trip & Itinerary Planner",
+  "description": "AI-powered trip and budget itinerary planner scoped exclusively to Karachi, Pakistan with realistic cost modeling, area clustering, and route maps.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
