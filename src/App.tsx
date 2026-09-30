@@ -56,7 +56,7 @@ export default function App() {
   const [activeTripId, setActiveTripId] = useState<string | null>(null);
   const [isCurrentTripSaved, setIsCurrentTripSaved] = useState(false);
 
-  // Initial Data Load (Auth, Places, Saved Trips)
+  // Initial Data Load (Auth, Places, Saved Trips) & Auth State Listener
   useEffect(() => {
     async function initData() {
       try {
@@ -73,6 +73,17 @@ export default function App() {
       }
     }
     initData();
+
+    // Listen to real-time Supabase Auth changes (sign-in, token refresh, sign-out)
+    const unsubscribeAuth = dbService.onAuthStateChange(async (user) => {
+      setCurrentUser(user);
+      const trips = await dbService.getSavedTrips(user?.id);
+      setSavedTrips(trips);
+    });
+
+    return () => {
+      unsubscribeAuth();
+    };
   }, []);
 
   // Compute recommendations whenever preferences change or generate is clicked
