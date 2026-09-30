@@ -46,7 +46,7 @@ export const KARACHI_PLACES: Place[] = [
     food_cost: 950,
     rating: 4.9,
     description: 'Karachi’s historic heart of culinary glory. Famous for melt-in-your-mouth Waheed Bun Kabab, aromatic Delhi Rabri, fragrant spiced Nihari, and freshly fired Seekh Kebabs.',
-    image_url: burnsroad,
+    image_url: burnsImg,
     duration_hours: 2.5,
     best_time_window: 'Night',
     lat: 24.8569,
