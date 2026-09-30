@@ -4,6 +4,7 @@ import heroImg from '../assets/images/karachi_hero_coastal_1790594536900.jpg';
 import mohattaImg from '../assets/images/mohatta_palace_karachi_1790594556233.jpg';
 import burnsImg from '../assets/images/burns_road_food_street_1790594572422.jpg';
 import doDaryaImg from '../assets/images/do_darya_coastal_dining_1790594586375.jpg';
+import tdfghar from '../assets/images/TDF.jpg';
 
 export const KARACHI_HERO_IMAGE = heroImg;
 
@@ -122,7 +123,7 @@ export const KARACHI_PLACES: Place[] = [
     food_cost: 400,
     rating: 4.7,
     description: 'A restored 1930s residence preserving Karachi’s multicultural cosmopolitan history. The rooftop features handcrafted tiles, a vintage gramophone room, and panoramic views of Quaid’s Mazar.',
-    image_url: mohattaImg,
+    image_url: tdfghar,
     duration_hours: 1.5,
     best_time_window: 'Afternoon',
     lat: 24.8715,
