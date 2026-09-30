@@ -2,10 +2,10 @@ import { Place } from '../types';
 
 import heroImg from '../assets/images/karachi_hero_coastal_1790594536900.jpg';
 import mohattaImg from '../assets/images/mohatta_palace_karachi_1790594556233.jpg';
-// import burnsImg from '../assets/images/burns_road_food_street_1790594572422.jpg';
+import burnsImg from '../assets/images/burns_road_food_street_1790594572422.jpg';
 import doDaryaImg from '../assets/images/do_darya_coastal_dining_1790594586375.jpg';
 import tdfghar from '../assets/images/TDF.jpg';
-import burnsImg from '../assets/images/burns road.jpg';
+
 
 
 export const KARACHI_HERO_IMAGE = heroImg;
