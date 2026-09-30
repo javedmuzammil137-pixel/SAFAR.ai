@@ -1,7 +1,3 @@
--- ============================================================================
--- Safar.ai — Karachi Trip & Itinerary Planner
--- Complete Supabase PostgreSQL Schema & Seed Data (All 22 Places)
--- ============================================================================
 
 -- 1. USERS PROFILE TABLE (Mirrors auth.users)
 CREATE TABLE IF NOT EXISTS public.users (
@@ -12,6 +8,7 @@ CREATE TABLE IF NOT EXISTS public.users (
 );
 
 -- Trigger to auto-create public.users on auth.users sign-up
+
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -33,6 +30,7 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 -- 2. PLACES TABLE (Karachi destinations)
+
 CREATE TABLE IF NOT EXISTS public.places (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
@@ -58,6 +56,7 @@ CREATE TABLE IF NOT EXISTS public.places (
 );
 
 -- 3. TRIPS TABLE (Generated & Saved user itineraries)
+
 CREATE TABLE IF NOT EXISTS public.trips (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
@@ -73,6 +72,7 @@ CREATE TABLE IF NOT EXISTS public.trips (
 );
 
 -- 4. TRIP_PLACES TABLE (Relational stops per trip)
+
 CREATE TABLE IF NOT EXISTS public.trip_places (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   trip_id UUID REFERENCES public.trips(id) ON DELETE CASCADE,
@@ -88,6 +88,7 @@ CREATE TABLE IF NOT EXISTS public.trip_places (
 );
 
 -- 5. SAVED_TRIPS TABLE (Bookmarks / Favorite trips)
+
 CREATE TABLE IF NOT EXISTS public.saved_trips (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -96,9 +97,8 @@ CREATE TABLE IF NOT EXISTS public.saved_trips (
   UNIQUE(user_id, trip_id)
 );
 
--- ============================================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
--- ============================================================================
+
 
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.places ENABLE ROW LEVEL SECURITY;
@@ -107,6 +107,7 @@ ALTER TABLE public.trip_places ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.saved_trips ENABLE ROW LEVEL SECURITY;
 
 -- Places: Public read, Authenticated insert/update
+
 DROP POLICY IF EXISTS "Public places read" ON public.places;
 CREATE POLICY "Public places read" ON public.places FOR SELECT USING (true);
 DROP POLICY IF EXISTS "Service and auth insert places" ON public.places;
@@ -115,6 +116,7 @@ DROP POLICY IF EXISTS "Service and auth update places" ON public.places;
 CREATE POLICY "Service and auth update places" ON public.places FOR UPDATE USING (true);
 
 -- Trips: Allow public read of anonymous/own trips, allow insert
+
 DROP POLICY IF EXISTS "Allow read own trips" ON public.trips;
 CREATE POLICY "Allow read own trips" ON public.trips FOR SELECT USING (
   auth.uid() = user_id OR user_id IS NULL
@@ -127,6 +129,7 @@ CREATE POLICY "Allow delete own trips" ON public.trips FOR DELETE USING (
 );
 
 -- Trip Places:
+
 DROP POLICY IF EXISTS "Allow read trip places" ON public.trip_places;
 CREATE POLICY "Allow read trip places" ON public.trip_places FOR SELECT USING (true);
 DROP POLICY IF EXISTS "Allow insert trip places" ON public.trip_places;
@@ -135,6 +138,7 @@ DROP POLICY IF EXISTS "Allow delete trip places" ON public.trip_places;
 CREATE POLICY "Allow delete trip places" ON public.trip_places FOR DELETE USING (true);
 
 -- Saved Trips:
+
 DROP POLICY IF EXISTS "Allow read own saved trips" ON public.saved_trips;
 CREATE POLICY "Allow read own saved trips" ON public.saved_trips FOR SELECT USING (
   auth.uid() = user_id
@@ -149,14 +153,15 @@ CREATE POLICY "Allow delete own saved trips" ON public.saved_trips FOR DELETE US
 );
 
 -- Users:
+
 DROP POLICY IF EXISTS "Allow read own profile" ON public.users;
 CREATE POLICY "Allow read own profile" ON public.users FOR SELECT USING (auth.uid() = id);
 DROP POLICY IF EXISTS "Allow update own profile" ON public.users;
 CREATE POLICY "Allow update own profile" ON public.users FOR UPDATE USING (auth.uid() = id);
 
--- ============================================================================
+
 -- SEED DATA: 22 REAL KARACHI PLACES
--- ============================================================================
+
 
 INSERT INTO public.places (
   id, name, area, category, cost, entry_cost, food_cost, rating, description,
