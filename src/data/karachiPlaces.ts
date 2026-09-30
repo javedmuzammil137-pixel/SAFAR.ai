@@ -5,6 +5,7 @@ import mohattaImg from '../assets/images/mohatta_palace_karachi_1790594556233.jp
 import burnsImg from '../assets/images/burns_road_food_street_1790594572422.jpg';
 import doDaryaImg from '../assets/images/do_darya_coastal_dining_1790594586375.jpg';
 import tdfghar from '../assets/images/TDF.jpg';
+import burnsroad from '../assets/images/burns road.jpg';
 
 export const KARACHI_HERO_IMAGE = heroImg;
 
@@ -45,7 +46,7 @@ export const KARACHI_PLACES: Place[] = [
     food_cost: 950,
     rating: 4.9,
     description: 'Karachi’s historic heart of culinary glory. Famous for melt-in-your-mouth Waheed Bun Kabab, aromatic Delhi Rabri, fragrant spiced Nihari, and freshly fired Seekh Kebabs.',
-    image_url: burnsImg,
+    image_url: burnsroad,
     duration_hours: 2.5,
     best_time_window: 'Night',
     lat: 24.8569,
