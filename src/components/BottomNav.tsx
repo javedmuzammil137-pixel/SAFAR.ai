@@ -15,7 +15,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   selectedPlacesCount,
 }) => {
   const tabs = [
- 
+    { id: 'explore' as TabType, label: 'Explore', icon: Compass },
     { id: 'plan' as TabType, label: 'Plan Trip', icon: Sparkles, badge: selectedPlacesCount },
     { id: 'saved' as TabType, label: 'Saved', icon: Bookmark },
     { id: 'guide' as TabType, label: 'Guide', icon: BookOpen },
